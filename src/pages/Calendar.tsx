@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { format, addDays, startOfWeek } from "date-fns";
 import { apiFetch } from "@/lib/api";
@@ -41,7 +41,7 @@ const Calendar = () => {
           "bg-yellow-100 border-yellow-300",
         ];
         
-        const mockScheduled = (data.posts || []).slice(0, 8).map((post: any, index: number) => ({
+        const mockScheduled = (data.posts || []).slice(0, 8).map((post: { post_id: string; caption: string }, index: number) => ({
           id: post.post_id,
           title: post.caption.slice(0, 30) + "...",
           platform: ["Instagram", "LinkedIn", "Twitter", "Facebook"][index % 4],
@@ -126,7 +126,8 @@ const Calendar = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
           <div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Welcome to AI Content generation !</h1>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Content Calendar</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">Plan and schedule your posts across the week</p>
           </div>
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -224,6 +225,14 @@ const Calendar = () => {
         </Card>
 
         {/* Calendar Grid */}
+        {loading ? (
+          <Card className="flex items-center justify-center py-16 sm:py-24">
+            <div className="flex flex-col items-center gap-3 text-muted-foreground">
+              <Loader2 className="h-7 w-7 animate-spin text-primary" />
+              <span className="text-sm">Loading your schedule…</span>
+            </div>
+          </Card>
+        ) : (
         <Card className="overflow-hidden">
           <div className="overflow-x-auto">
             <div className="min-w-[700px] xl:min-w-0">
@@ -250,9 +259,11 @@ const Calendar = () => {
                         {scheduledPosts
                           .filter((post) => post.day === dayIndex && post.hour === hour)
                           .map((post) => (
-                            <div
+                            <button
+                              type="button"
                               key={post.id}
-                              className={`${post.color} border rounded p-2 text-xs cursor-pointer hover:shadow-md transition-shadow`}
+                              aria-label={`${post.title} — ${post.platform} at ${post.time}`}
+                              className={`${post.color} border rounded p-2 text-xs cursor-pointer hover:shadow-md transition-shadow w-full text-left text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1`}
                               onClick={() => {
                                 toast({
                                   title: post.title,
@@ -262,8 +273,8 @@ const Calendar = () => {
                             >
                               <div className="font-medium">{post.time}</div>
                               <div className="font-semibold truncate">{post.title}</div>
-                              <div className="text-muted-foreground">{post.platform}</div>
-                            </div>
+                              <div className="text-gray-600">{post.platform}</div>
+                            </button>
                           ))}
                       </div>
                     ))}
@@ -273,6 +284,7 @@ const Calendar = () => {
             </div>
           </div>
         </Card>
+        )}
       </div>
     </div>
   );
