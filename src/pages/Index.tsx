@@ -7,8 +7,13 @@ import { ContentCalendar } from "@/components/ContentCalendar";
 import { toast } from "@/hooks/use-toast";
 import { FileText, Users, BarChart, Share2, MessageSquare, Youtube, Zap, BookOpen, LifeBuoy } from "lucide-react";
 import homePageAsset from "@/assets/home_page_asset.png";
+import { useExperiment } from "@/hooks/use-experiment";
+import { experiments } from "@/lib/experiments";
 
 const Index = () => {
+  const demoCta = useExperiment(experiments.demoCtaCopy);
+  const demoCtaTitle = demoCta.variant === "urgent" ? "Book Your Free Demo" : "Request Live Demo";
+
   const showComingSoon = (feature: string) => {
     toast({
       title: "Coming Soon",
@@ -162,7 +167,10 @@ const Index = () => {
 
             <Card
               className="hover:shadow-lg transition-shadow cursor-pointer"
-              onClick={() => showComingSoon("Request Live Demo")}
+              onClick={() => {
+                demoCta.track();
+                showComingSoon(demoCtaTitle);
+              }}
             >
               <CardHeader>
                 <div className="flex items-center gap-3">
@@ -170,7 +178,7 @@ const Index = () => {
                     <Users className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <CardTitle className="text-base">Request Live Demo</CardTitle>
+                    <CardTitle className="text-base">{demoCtaTitle}</CardTitle>
                     <CardDescription className="text-xs">An onboarding and walkthrough with our team</CardDescription>
                   </div>
                 </div>
