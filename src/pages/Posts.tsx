@@ -561,8 +561,10 @@ export default function Posts() {
                       className="h-20 w-20 object-cover rounded-lg border"
                     />
                     <Button
+                      type="button"
                       size="icon"
                       variant="destructive"
+                      aria-label="Remove reference image"
                       className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
                       onClick={removeReferenceImage}
                     >
@@ -757,6 +759,7 @@ export default function Posts() {
                     <Button
                       size="icon"
                       variant="secondary"
+                      aria-label={savedPost.finalized === "True" ? "Post finalized" : "Finalize post"}
                       className="h-8 w-8 bg-background/80 backdrop-blur-sm hover:bg-background"
                       onClick={() => copySavedCaption(savedPost)}
                       title="Copy caption"
@@ -785,6 +788,7 @@ export default function Posts() {
                     <Button
                       size="icon"
                       variant="secondary"
+                      aria-label="Delete post"
                       className="h-8 w-8 bg-background/80 backdrop-blur-sm hover:bg-destructive hover:text-destructive-foreground"
                       onClick={() => deleteSavedPost(savedPost.post_id)}
                       title="Delete post"

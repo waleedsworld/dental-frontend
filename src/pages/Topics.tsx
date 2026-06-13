@@ -330,7 +330,8 @@ export default function Topics() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 shrink-0"
+                    aria-label={`Delete topic ${topic.title}`}
+                    className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity h-8 w-8 shrink-0"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDeleteTopic(topic.topic_id);

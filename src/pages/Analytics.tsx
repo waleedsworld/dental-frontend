@@ -171,7 +171,7 @@ const Analytics = () => {
                 <div key={index} className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">{category.name}</span>
                   <div className="flex items-center gap-2">
-                    <div className="h-2 bg-primary rounded-full" style={{ width: `${(category.count / totalPosts) * 100}px` }} />
+                    <div className="h-2 bg-primary rounded-full" style={{ width: `${Math.min((category.count / (totalPosts || 1)) * 100, 100)}px` }} />
                     <span className="text-sm font-semibold">{category.count}</span>
                   </div>
                 </div>
