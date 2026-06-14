@@ -14,4 +14,21 @@ export default defineConfig(() => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    target: "es2020",
+    cssCodeSplit: true,
+    reportCompressedSize: false,
+    chunkSizeWarningLimit: 900,
+    rollupOptions: {
+      output: {
+        // Split heavy, rarely-changing vendor code into cacheable chunks so a
+        // small app change doesn't invalidate the whole bundle for returning users.
+        manualChunks: {
+          "react-vendor": ["react", "react-dom", "react-router-dom"],
+          "charts": ["recharts"],
+          "query": ["@tanstack/react-query"],
+        },
+      },
+    },
+  },
 }));
