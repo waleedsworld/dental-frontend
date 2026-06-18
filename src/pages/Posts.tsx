@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Copy, RefreshCw, Check, Sparkles, Trash2, CheckCircle, Upload, X } from "lucide-react";
+import { Copy, RefreshCw, Check, Sparkles, Trash2, CheckCircle, Upload, X, Search, Download, FilterX } from "lucide-react";
 import { apiFetch, BASE_URL } from "@/lib/api";
 
 interface Client {
@@ -64,6 +64,11 @@ export default function Posts() {
 
   // Custom prompt
   const [customPrompt, setCustomPrompt] = useState<string>("");
+
+  // Post library filters (client-side search/filtering of the saved posts feed)
+  const [librarySearch, setLibrarySearch] = useState<string>("");
+  const [libraryStatus, setLibraryStatus] = useState<"all" | "finalized" | "draft">("all");
+  const [libraryClient, setLibraryClient] = useState<string>("all");
 
   // Fetch clients
   useEffect(() => {
@@ -383,6 +388,76 @@ export default function Posts() {
     }
   };
 
+  // Copy a specific saved post's caption + hashtags to the clipboard.
+  const copySavedCaption = (savedPost: Post) => {
+    const text = savedPost.caption + (savedPost.hashtags ? `\n\n${savedPost.hashtags}` : "");
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Caption Copied",
+      description: "Caption has been copied to clipboard.",
+    });
+  };
+
+  // Download a generated post image. Fetches the remote asset as a blob so the
+  // browser saves the file instead of navigating away to it.
+  const downloadPostImage = async (savedPost: Post) => {
+    try {
+      const response = await fetch(savedPost.image_url, {
+        headers: { "ngrok-skip-browser-warning": "69420" },
+      });
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = `post-${savedPost.post_id}.png`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+
+      toast({
+        title: "Image Downloaded",
+        description: "The post image has been saved to your device.",
+      });
+    } catch (err) {
+      console.error("Failed to download image:", err);
+      toast({
+        title: "Download Failed",
+        description: "Could not download the image. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Clear all active library filters back to their defaults.
+  const resetLibraryFilters = () => {
+    setLibrarySearch("");
+    setLibraryStatus("all");
+    setLibraryClient("all");
+  };
+
+  const isLibraryFiltered = librarySearch.trim() !== "" || libraryStatus !== "all" || libraryClient !== "all";
+
+  // Client-side filtered view of the saved posts feed. Matches on caption/hashtag
+  // text, finalized status, and the owning client so users can quickly find a post
+  // in a large library without a round-trip to the API.
+  const filteredSavedPosts = savedPosts.filter((savedPost) => {
+    const query = librarySearch.trim().toLowerCase();
+    const matchesSearch =
+      query === "" ||
+      savedPost.caption.toLowerCase().includes(query) ||
+      (savedPost.hashtags || "").toLowerCase().includes(query);
+
+    const matchesStatus =
+      libraryStatus === "all" ||
+      (libraryStatus === "finalized" && savedPost.finalized === "True") ||
+      (libraryStatus === "draft" && savedPost.finalized !== "True");
+
+    const matchesClient = libraryClient === "all" || savedPost.client_id === libraryClient;
+
+    return matchesSearch && matchesStatus && matchesClient;
+  });
+
   return (
     <div className="container mx-auto p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
       <div className="flex items-center gap-2 mb-4 sm:mb-6">
@@ -607,9 +682,69 @@ export default function Posts() {
       {/* Saved Posts Feed */}
       {savedPosts.length > 0 && (
         <div className="mt-8 sm:mt-12">
-          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Your Posts</h2>
+          <div className="flex flex-wrap items-center gap-2 mb-4 sm:mb-6">
+            <h2 className="text-xl sm:text-2xl font-bold">Your Posts</h2>
+            <span className="text-sm text-muted-foreground">
+              {filteredSavedPosts.length}
+              {filteredSavedPosts.length !== savedPosts.length ? ` of ${savedPosts.length}` : ""}
+            </span>
+          </div>
+
+          {/* Library Toolbar: search + status/client filters over the saved feed */}
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <Input
+                value={librarySearch}
+                onChange={(e) => setLibrarySearch(e.target.value)}
+                placeholder="Search captions and hashtags..."
+                className="pl-9"
+              />
+            </div>
+
+            <Select value={libraryStatus} onValueChange={(v) => setLibraryStatus(v as typeof libraryStatus)}>
+              <SelectTrigger className="w-full sm:w-40">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="finalized">Finalized</SelectItem>
+                <SelectItem value="draft">Drafts</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={libraryClient} onValueChange={setLibraryClient}>
+              <SelectTrigger className="w-full sm:w-48">
+                <SelectValue placeholder="Client" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Clients</SelectItem>
+                {clients.map((client) => (
+                  <SelectItem key={client.id} value={client.id}>
+                    {client.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {isLibraryFiltered && (
+              <Button variant="outline" onClick={resetLibraryFilters} className="shrink-0">
+                <FilterX className="h-4 w-4 mr-2" />
+                Clear
+              </Button>
+            )}
+          </div>
+
+          {filteredSavedPosts.length === 0 ? (
+            <Card className="border-dashed">
+              <CardContent className="p-12 text-center text-muted-foreground">
+                <Search className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p className="text-lg">No posts match your filters</p>
+              </CardContent>
+            </Card>
+          ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-            {savedPosts.map((savedPost) => (
+            {filteredSavedPosts.map((savedPost) => (
               <Card
                 key={savedPost.post_id}
                 className={`animate-fade-in transition-all duration-300 hover:shadow-lg relative ${
@@ -623,8 +758,27 @@ export default function Posts() {
                       size="icon"
                       variant="secondary"
                       className="h-8 w-8 bg-background/80 backdrop-blur-sm hover:bg-background"
+                      onClick={() => copySavedCaption(savedPost)}
+                      title="Copy caption"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="h-8 w-8 bg-background/80 backdrop-blur-sm hover:bg-background"
+                      onClick={() => downloadPostImage(savedPost)}
+                      title="Download image"
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="h-8 w-8 bg-background/80 backdrop-blur-sm hover:bg-background"
                       onClick={() => finalizeSavedPost(savedPost.post_id)}
                       disabled={savedPost.finalized === "True"}
+                      title="Finalize post"
                     >
                       <CheckCircle className="h-4 w-4" />
                     </Button>
@@ -633,6 +787,7 @@ export default function Posts() {
                       variant="secondary"
                       className="h-8 w-8 bg-background/80 backdrop-blur-sm hover:bg-destructive hover:text-destructive-foreground"
                       onClick={() => deleteSavedPost(savedPost.post_id)}
+                      title="Delete post"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -664,6 +819,7 @@ export default function Posts() {
               </Card>
             ))}
           </div>
+          )}
         </div>
       )}
     </div>
