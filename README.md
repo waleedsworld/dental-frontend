@@ -1,6 +1,16 @@
 # AI Content Studio 🎨✨
 
-> Your social media content, generated, scheduled and analysed — all from one calm little dashboard.
+> Your social media content — generated, scheduled and analysed — all from one calm little dashboard.
+
+<p align="center">
+  <img alt="React 18" src="https://img.shields.io/badge/React-18-149ECA?logo=react&logoColor=white" />
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white" />
+  <img alt="Vite" src="https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white" />
+  <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind%20CSS-3-38BDF8?logo=tailwindcss&logoColor=white" />
+  <img alt="shadcn/ui" src="https://img.shields.io/badge/shadcn%2Fui-Radix-000000?logo=radixui&logoColor=white" />
+  <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-22C55E" />
+  <img alt="PRs welcome" src="https://img.shields.io/badge/PRs-welcome-8B5CF6" />
+</p>
 
 AI Content Studio is a React dashboard for content teams and agencies who juggle **many
 clients and a lot of posts**. Spin up on-brand social posts with AI, sort them into topics,
@@ -34,6 +44,11 @@ different tabs. It's fast, it's tidy, and yes, it does dark mode. 🌙
   <img src="docs/media/posts-light.png" alt="Posts view" width="49%" />
   <img src="docs/media/analytics-dark.png" alt="Analytics in dark mode" width="49%" />
 </p>
+
+> 🎬 **Want the full walkthrough?** Drop a screen recording at `assets/demo.gif` and it'll
+> render right here:
+>
+> <p align="center"><img src="assets/demo.gif" alt="AI Content Studio demo" width="100%" /></p>
 
 ---
 
@@ -70,6 +85,23 @@ npm run lint      # tidy check with ESLint
 
 ---
 
+## 🖱️ Usage
+
+Once the app is running and pointed at a backend, a typical loop looks like this:
+
+1. **Pick or create a client.** Everything you do lives inside a client workspace, so your
+   brands never bleed into each other.
+2. **Set up topics & categories.** These give the AI the context it needs to stay on-brand.
+3. **Generate a post.** Describe what you want — optionally attach a reference image — and the
+   studio returns poster/ad-style drafts to review, tweak, or discard.
+4. **Schedule it.** Drop approved posts onto the content calendar so you can see the week at a glance.
+5. **Watch the numbers.** The analytics view charts weekly engagement so you learn what actually lands.
+
+No backend yet? The UI still loads with a local dev fallback URL, so you can click around and
+explore every screen — the data-driven pages simply won't have anything to fetch.
+
+---
+
 ## 🔌 Configuration
 
 The frontend talks to a backend API for clients, topics, posts and generation. Set its address
@@ -99,7 +131,13 @@ click around — the data-driven pages just won't have anything to fetch until a
 
 ---
 
-## 🗂️ Project structure
+## 🗂️ Architecture & project structure
+
+The app is a single-page React client. `main.tsx` boots the tree; `App.tsx` wires up the
+providers (TanStack Query, theming, router) and declares the routes. Each route in `pages/`
+composes feature widgets from `components/`, which in turn lean on the shadcn/ui primitives in
+`components/ui/`. Data flows through a thin fetch wrapper in `lib/api.ts`, and TanStack Query
+handles caching, loading and refetch state so components stay declarative.
 
 ```
 src/
@@ -111,6 +149,12 @@ src/
 ├── pages/          # Index, Posts, Topics, Clients, Calendar, Analytics…
 ├── App.tsx         # routes + providers
 └── main.tsx        # entry point
+```
+
+```
+main.tsx  →  App.tsx (providers + router)  →  pages/*  →  components/*  →  components/ui/*
+                                                  │
+                                             lib/api.ts  ⇄  TanStack Query cache  ⇄  backend API
 ```
 
 ---
@@ -126,6 +170,13 @@ experience in about a minute.
 
 PRs and ideas welcome. Keep it typed, keep it tidy, run `npm run lint` before you push, and try
 not to break dark mode (we're rather fond of it).
+
+---
+
+## 📄 License
+
+Released under the **MIT License** — see [`LICENSE`](LICENSE) for the full text. Do what you like,
+just keep the notice.
 
 ---
 
