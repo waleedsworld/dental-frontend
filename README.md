@@ -1,73 +1,132 @@
-# Welcome to your Lovable project
+# AI Content Studio 🎨✨
 
-## Project info
+> Your social media content, generated, scheduled and analysed — all from one calm little dashboard.
 
-**URL**: https://lovable.dev/projects/5f5aacde-5d1e-440a-a79d-01095d38a0ab
+AI Content Studio is a React dashboard for content teams and agencies who juggle **many
+clients and a lot of posts**. Spin up on-brand social posts with AI, sort them into topics,
+line them up on a calendar, and keep an eye on how they're doing — without living inside five
+different tabs. It's fast, it's tidy, and yes, it does dark mode. 🌙
 
-## How can I edit this code?
+<p align="center">
+  <img src="docs/media/dashboard-light.png" alt="AI Content Studio dashboard in light mode" width="100%" />
+</p>
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+## ✨ Why it's cool
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/5f5aacde-5d1e-440a-a79d-01095d38a0ab) and start prompting.
+- **AI post generation** — describe what you want (or upload a reference image) and get
+  poster/ad-style social posts back, ready to review.
+- **Multi-client by design** — every business you manage is its own workspace: clients,
+  topics, and posts stay neatly separated.
+- **Topics & categories** — organise the stuff you post about so the AI always has context.
+- **Content calendar** — see what's going out and when, at a glance.
+- **Analytics** — a weekly engagement view so you know what's actually landing.
+- **Light & dark mode** — a proper theme switch that remembers your choice. Kind to eyes at 2am. 🌚
+- **Genuinely responsive** — the sidebar collapses, cards reflow, and it behaves on a phone.
 
-Changes made via Lovable will be committed automatically to this repo.
+<p align="center">
+  <img src="docs/media/dashboard-dark.png" alt="Dashboard in dark mode" width="49%" />
+  <img src="docs/media/dashboard-mobile.png" alt="Dashboard on mobile" width="24%" />
+</p>
 
-**Use your preferred IDE**
+<p align="center">
+  <img src="docs/media/posts-light.png" alt="Posts view" width="49%" />
+  <img src="docs/media/analytics-dark.png" alt="Analytics in dark mode" width="49%" />
+</p>
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🚀 Quick start (for absolute beginners — nothing assumed)
 
-Follow these steps:
+You'll need **Node.js 18+** and **npm**. Not sure if you have them? Run `node -v`. If that errors,
+grab Node from [nodejs.org](https://nodejs.org/) (or use [nvm](https://github.com/nvm-sh/nvm)).
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# 1. Clone the repo
+git clone https://github.com/waleedsworld/dental-frontend.git
+cd dental-frontend
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# 2. Install dependencies (grab a coffee ☕ — it's a big shadcn tree)
+npm install
 
-# Step 3: Install the necessary dependencies.
-npm i
+# 3. Point it at your backend
+cp .env.example .env
+# then open .env and set VITE_BASE_URL to your API's address
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 4. Fire it up with hot reload
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Now open the URL Vite prints (usually **http://localhost:8080**) and you're in. 🎉
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Other handy commands
 
-**Use GitHub Codespaces**
+```sh
+npm run build     # production build → dist/
+npm run preview   # preview the production build locally
+npm run lint      # tidy check with ESLint
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+---
 
-## What technologies are used for this project?
+## 🔌 Configuration
 
-This project is built with:
+The frontend talks to a backend API for clients, topics, posts and generation. Set its address
+in `.env`:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```sh
+VITE_BASE_URL=https://your-backend.example.com
+```
 
-## How can I deploy this project?
+If you don't set it, the app falls back to a local dev URL, so the UI still loads and you can
+click around — the data-driven pages just won't have anything to fetch until a backend is wired up.
 
-Simply open [Lovable](https://lovable.dev/projects/5f5aacde-5d1e-440a-a79d-01095d38a0ab) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
+## 🧱 Tech stack
 
-Yes, you can!
+| Layer      | What we used                                             |
+| ---------- | ------------------------------------------------------- |
+| Framework  | **React 18** + **TypeScript**                           |
+| Build      | **Vite** (SWC-powered, blazing fast)                    |
+| UI         | **shadcn/ui** (Radix primitives) + **Tailwind CSS**     |
+| Theming    | **next-themes** (persisted light/dark)                  |
+| Data       | **TanStack Query** for fetching & caching               |
+| Routing    | **React Router**                                        |
+| Charts     | **Recharts**                                            |
+| Forms      | **react-hook-form** + **zod**                           |
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 🗂️ Project structure
+
+```
+src/
+├── assets/         # logo + imagery
+├── components/     # AppSidebar, ThemeToggle, dashboard widgets…
+│   └── ui/         # shadcn/ui primitives
+├── hooks/          # use-mobile, use-toast
+├── lib/            # api.ts (fetch wrapper), utils
+├── pages/          # Index, Posts, Topics, Clients, Calendar, Analytics…
+├── App.tsx         # routes + providers
+└── main.tsx        # entry point
+```
+
+---
+
+## 🌐 Live demo
+
+**Deploying soon** — a hosted preview is on the way. For now, `npm run dev` gives you the full
+experience in about a minute.
+
+---
+
+## 🤝 Contributing
+
+PRs and ideas welcome. Keep it typed, keep it tidy, run `npm run lint` before you push, and try
+not to break dark mode (we're rather fond of it).
+
+---
+
+Made with React, Tailwind, and a slightly unhealthy amount of coffee. ☕
